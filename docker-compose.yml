@@ -1,0 +1,57 @@
+services:
+  # Database Service: PostgreSQL
+  database:
+    # Specifiy the location of the Dockerfile for the database service
+    build : ./database 
+    image : lauradmsefrei/tp1-database:1.0
+    container_name: database_postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - app-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Persists data on the host
+    restart: always
+    # Healthcheck to ensure the database is ready before the backend tries to connect
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend Service: Spring Boot API
+  backend:
+    # Specifiy the location of the Dockerfile for the backend service
+    build: ./backend/simpleapi/simpleapi
+    image : lauradmsefrei/tp1-backend:1.0
+    container_name: student-api
+    depends_on:
+      - database:  # Ensures the database starts before the API 
+        - condition: service_healthy # Waits for the database to be healthy before starting the backend
+    networks:
+      - app-network
+    # Ports are NOT exposed to the host
+    restart: always
+
+  # HTTP Server Service: Apache Reverse Proxy
+  httpd:
+    # Specifiy the location of the Dockerfile for the HTTP server service
+    build: ./http_server
+    image : lauradmsefrei/tp1-http-server:1.0
+    container_name: proxy-server
+    ports:
+      - "80:80"  # Exposed to host for access via localhost
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:  # Volume for database persistence

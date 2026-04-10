@@ -1,0 +1,29 @@
+name: CI devops 2026
+on:
+  push:
+    branches: 
+      - main
+      - master
+  pull_request:
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupération du code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installation de Java 21 (requis pour Spring Boot)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven' # Optimisation : évite de retélécharger les libs à chaque fois
+
+      # 3. Build et Test de l'application
+      - name: Build and test with Maven
+        # On se déplace dans le dossier backend avant de lancer la commande
+        run: mvn clean verify --file backend/simpleapi/simpleapi/pom.xml

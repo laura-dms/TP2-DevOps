@@ -24,7 +24,7 @@ jobs:
       - name: Build image and push backend
         uses: docker/build-push-action@v6
         with:
-          context: ./backend
+          context: ./backend/simpleapi/simpleapi
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-simple-api:latest

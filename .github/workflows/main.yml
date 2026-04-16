@@ -4,7 +4,6 @@ on:
   push:
     branches: 
       - main
-      - master
   pull_request:
 
 jobs:
@@ -86,3 +85,4 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             --file backend/simpleapi/simpleapi/pom.xml
+            

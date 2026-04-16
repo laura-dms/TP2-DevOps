@@ -41,7 +41,7 @@ jobs:
       - name: Build image and push http-server
         uses: docker/build-push-action@v6
         with:
-          context: ./http-server
+          context: ./http_server
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-http-server:latest
 

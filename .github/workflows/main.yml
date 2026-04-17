@@ -12,7 +12,6 @@ jobs:
   # 1. Job pour les tests unitaires/build
   # Lancé sur develop ET main ET test
   test-backend:
-    needs: setup-environment
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

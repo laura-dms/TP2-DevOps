@@ -28,8 +28,8 @@ services:
     image : lauradmsefrei/tp1-backend:1.0
     container_name: student-api
     depends_on:
-      - database:  # Ensures the database starts before the API 
-        - condition: service_healthy # Waits for the database to be healthy before starting the backend
+      database:  # Ensures the database starts before the API 
+        condition: service_healthy # Waits for the database to be healthy before starting the backend
     networks:
       - app-network
     # Ports are NOT exposed to the host

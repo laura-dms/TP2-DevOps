@@ -4,7 +4,8 @@ on:
   push:
     branches: 
       - main
-  pull_request:
+      - test
+  pull_request: # Déclenche le pipeline pour TOUTES les PR
 
 jobs:
   # 1. Job de préparation de l'environnement (checkout + setup Java)

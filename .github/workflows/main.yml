@@ -5,22 +5,12 @@ on:
     branches: 
       - main
       - test
+      - develop
   pull_request: # Déclenche le pipeline pour TOUTES les PR
 
 jobs:
-  # 1. Job de préparation de l'environnement (checkout + setup Java)
-  setup-environment:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-  # 2. Job pour les tests unitaires/build
+  # 1. Job pour les tests unitaires/build
+  # Lancé sur develop ET main ET test
   test-backend:
     needs: setup-environment
     runs-on: ubuntu-latest

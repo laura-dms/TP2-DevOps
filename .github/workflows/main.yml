@@ -105,6 +105,8 @@ jobs:
           context: ./http_server
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-http-server:latest
+
+  # Ancienne config (moins optimisée) pour construire et pousser les 3 images DANS UN SEUL JOB, après les tests et Sonar
   # build-and-push-docker-image:
   #   # CONDITION : Le job ne s'exécute que si on est sur la branche main
   #   if: github.ref == 'refs/heads/main'

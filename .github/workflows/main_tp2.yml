@@ -1,88 +1,88 @@
-name: CI devops 2026
-# Déclenchement de l'action sur les pushs et les pull requests vers les branches main et master
-on:
-  push:
-    branches: 
-      - main
-  pull_request:
+# name: CI devops 2026
+# # Déclenchement de l'action sur les pushs et les pull requests vers les branches main et master
+# on:
+#   push:
+#     branches: 
+#       - main
+#   pull_request:
 
-jobs:
-  # Job pour construire et pousser les images Docker sur Docker Hub
-  build-and-push-docker-image:
-    needs: test-backend # Attends que les tests réussissent et code compilé
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+# jobs:
+#   # Job pour construire et pousser les images Docker sur Docker Hub
+#   build-and-push-docker-image:
+#     needs: test-backend # Attends que les tests réussissent et code compilé
+#     runs-on: ubuntu-24.04
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
 
-      # Etape obligatoire pour s'identifier sur Docker Hub
-      - name: Login to DockerHub
-        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+#       # Etape obligatoire pour s'identifier sur Docker Hub
+#       - name: Login to DockerHub
+#         run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
-      # Build et Push du BACKEND
-      - name: Build image and push backend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backend/simpleapi/simpleapi
-          # build on feature branches, push only on main branch
-          push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-simple-api:latest
+#       # Build et Push du BACKEND
+#       - name: Build image and push backend
+#         uses: docker/build-push-action@v6
+#         with:
+#           context: ./backend/simpleapi/simpleapi
+#           # build on feature branches, push only on main branch
+#           push: ${{ github.ref == 'refs/heads/main' }}
+#           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-simple-api:latest
 
-      # Build et Push de la DATABASE
-      - name: Build image and push database
-        uses: docker/build-push-action@v6
-        with:
-          context: ./database
-          push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-database:latest
+#       # Build et Push de la DATABASE
+#       - name: Build image and push database
+#         uses: docker/build-push-action@v6
+#         with:
+#           context: ./database
+#           push: ${{ github.ref == 'refs/heads/main' }}
+#           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-database:latest
 
-      # Build et Push du serveur HTTP SERVER
-      - name: Build image and push http-server
-        uses: docker/build-push-action@v6
-        with:
-          context: ./http_server
-          push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-http-server:latest
+#       # Build et Push du serveur HTTP SERVER
+#       - name: Build image and push http-server
+#         uses: docker/build-push-action@v6
+#         with:
+#           context: ./http_server
+#           push: ${{ github.ref == 'refs/heads/main' }}
+#           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-http-server:latest
 
 
-  # Job pour tester le backend Spring Boot
-  test-backend:
-    runs-on: ubuntu-latest
+#   # Job pour tester le backend Spring Boot
+#   test-backend:
+#     runs-on: ubuntu-latest
 
-    # Définition des étapes du job
-    steps:
-      # 1. Récupération du code
-      - name: Checkout code
-      # Copier le code de l'étape d'installation de Java depuis le dépôt Github vers le disuqe dur de la machine virtuelle qui exécute l'action
-        uses: actions/checkout@v4
-        with:
-            fetch-depth: 0 # Récupère tout l'historique du dépôt, nécessaire pour Sonar qui ont besoin de l'historique complet
+#     # Définition des étapes du job
+#     steps:
+#       # 1. Récupération du code
+#       - name: Checkout code
+#       # Copier le code de l'étape d'installation de Java depuis le dépôt Github vers le disuqe dur de la machine virtuelle qui exécute l'action
+#         uses: actions/checkout@v4
+#         with:
+#             fetch-depth: 0 # Récupère tout l'historique du dépôt, nécessaire pour Sonar qui ont besoin de l'historique complet
 
-      # 2. Installation de Java 21 (requis pour Spring Boot)
-      - name: Set up JDK 21
-      # Utilisation de l'action officielle pour installer Java et configurer le cache Maven pour accélérer les builds
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven' # Optimisation : évite de retélécharger les libs à chaque , garder en mémoire les dépendances téléchargées
+#       # 2. Installation de Java 21 (requis pour Spring Boot)
+#       - name: Set up JDK 21
+#       # Utilisation de l'action officielle pour installer Java et configurer le cache Maven pour accélérer les builds
+#         uses: actions/setup-java@v4
+#         with:
+#           java-version: '21'
+#           distribution: 'temurin'
+#           cache: 'maven' # Optimisation : évite de retélécharger les libs à chaque , garder en mémoire les dépendances téléchargées
 
-      # 3. Build et Test de l'application
-      - name: Build and test with Maven
-        # On se déplace dans le dossier backend avant de lancer la commande
-        # Lancer les tests unitaires et les tests de composants avec Maven, en spécifiant le chemin du pom.xml
-        run: mvn clean verify --file backend/simpleapi/simpleapi/pom.xml
+#       # 3. Build et Test de l'application
+#       - name: Build and test with Maven
+#         # On se déplace dans le dossier backend avant de lancer la commande
+#         # Lancer les tests unitaires et les tests de composants avec Maven, en spécifiant le chemin du pom.xml
+#         run: mvn clean verify --file backend/simpleapi/simpleapi/pom.xml
 
-      # 4. Analyse de code avec SonarCloud
-      - name: Build and analyze with SonarCloud
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Généré par GitHub par défaut
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn -B clean verify sonar:sonar \
-            -Dsonar.projectKey=laura-dms_simple-api \
-            -Dsonar.organization=laura-dms \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            --file backend/simpleapi/simpleapi/pom.xml
+#       # 4. Analyse de code avec SonarCloud
+#       - name: Build and analyze with SonarCloud
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Généré par GitHub par défaut
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#         run: |
+#           mvn -B clean verify sonar:sonar \
+#             -Dsonar.projectKey=laura-dms_simple-api \
+#             -Dsonar.organization=laura-dms \
+#             -Dsonar.host.url=https://sonarcloud.io \
+#             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+#             --file backend/simpleapi/simpleapi/pom.xml
             

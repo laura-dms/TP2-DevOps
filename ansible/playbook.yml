@@ -1,0 +1,26 @@
+---
+- hosts: all
+  gather_facts: true
+  become: true
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3 
+    db_name: "db"
+    db_user: "usr"
+    db_password: "password"
+
+  roles:
+    - docker
+    # Une fois Docker installé, on bascule sur le venv pour les modules docker
+    - role: network
+      vars:
+        ansible_python_interpreter: /opt/docker_venv/bin/python
+    - role: database
+      vars:
+        ansible_python_interpreter: /opt/docker_venv/bin/python
+    - role: app
+      vars:
+        ansible_python_interpreter: /opt/docker_venv/bin/python
+    # - role: proxy
+    #   vars:
+    #     ansible_python_interpreter: /opt/docker_venv/bin/python

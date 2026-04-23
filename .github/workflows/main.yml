@@ -107,7 +107,7 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-http-server:latest
 
 
-    deploy-ansible:
+  deploy-ansible:
     needs: [build-and-push-backend, build-and-push-database, build-and-push-http-server]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

@@ -1,0 +1,26 @@
+---
+# tasks file for roles/database
+- name: Run Database
+  docker_container:
+    name: database_postgres
+    image: lauradmsefrei/tp-devops-database:latest
+    networks:
+      - name: app-network
+    env:
+      POSTGRES_DB: "{{ db_name }}"
+      POSTGRES_USER: "{{ db_user }}"
+      POSTGRES_PASSWORD: "{{ db_password }}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart_policy: always
+    # --- AJOUT DU HEALTHCHECK ---
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{ db_user }} -d {{ db_name }}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Attend que le statut devienne 'healthy'
+    comparisons:
+      healthcheck: strict
+  # vars:
+  #   ansible_python_interpreter: /opt/docker_venv/bin/python

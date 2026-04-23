@@ -1,0 +1,13 @@
+---
+# tasks file for roles/proxy
+- name: Run Proxy
+  docker_container:
+    name: proxy-server
+    image: lauradmsefrei/tp-devops-http-server
+    ports:
+      - "80:80"
+    networks:
+      - name: app-network
+    restart_policy: always
+  # vars:
+  #   ansible_python_interpreter: /opt/docker_venv/bin/python

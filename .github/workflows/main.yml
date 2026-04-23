@@ -106,6 +106,31 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-http-server:latest
 
+
+    deploy-ansible:
+    needs: [build-and-push-backend, build-and-push-database, build-and-push-http-server]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          # Ajoute l'empreinte du serveur pour éviter le prompt de confirmation
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml \
+          --private-key ~/.ssh/id_rsa
+
   # Ancienne config (moins optimisée) pour construire et pousser les 3 images DANS UN SEUL JOB, après les tests et Sonar
   # build-and-push-docker-image:
   #   # CONDITION : Le job ne s'exécute que si on est sur la branche main

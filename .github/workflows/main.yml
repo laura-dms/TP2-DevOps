@@ -129,7 +129,8 @@ jobs:
       - name: Run Ansible Playbook
         run: |
           ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml \
-          --private-key ~/.ssh/id_rsa
+          --private-key ~/.ssh/id_rsa \
+          -e "ansible_ssh_private_key_file=~/.ssh/id_rsa"
 
   # Ancienne config (moins optimisée) pour construire et pousser les 3 images DANS UN SEUL JOB, après les tests et Sonar
   # build-and-push-docker-image:

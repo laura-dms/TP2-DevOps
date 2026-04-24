@@ -7,6 +7,7 @@ on:
       - test
       - develop
   pull_request: # Déclenche le pipeline pour TOUTES les PR
+  workflow_dispatch: # Permet de déclencher manuellement le workflow depuis l'interface GitHub
 
 jobs:
   # 1. Job pour les tests unitaires/build
@@ -109,7 +110,7 @@ jobs:
 
   deploy-ansible:
     needs: [build-and-push-backend, build-and-push-database, build-and-push-http-server]
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:

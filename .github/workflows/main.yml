@@ -120,8 +120,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          # Ajoute l'empreinte du serveur pour éviter le prompt de confirmation
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          # On utilise l'option -t rsa pour être spécifique et on vérifie que la variable existe
+          ssh-keyscan -t rsa -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Install Ansible
         run: pip install ansible

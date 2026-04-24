@@ -9,7 +9,10 @@
     ports:
       - "8080:8080"
     env:
-      DATABASE_URL: "database_postgres" # Le nom du conteneur DB sert de host
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://database_postgres:5432/{{ db_name }}"
+      SPRING_DATASOURCE_USERNAME: "{{ db_user }}"
+      SPRING_DATASOURCE_PASSWORD: "{{ db_password }}"
+      # DATABASE_URL: "database_postgres" # Le nom du conteneur DB sert de host
     restart_policy: always
     # --- AJOUT DU HEALTHCHECK ---
     healthcheck:

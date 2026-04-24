@@ -1,5 +1,9 @@
 ---
 # tasks file for roles/database
+- name: Create pgdata volume
+  docker_volume:
+    name: pgdata
+
 - name: Run Database
   docker_container:
     name: database_postgres

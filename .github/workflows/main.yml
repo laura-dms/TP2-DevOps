@@ -107,9 +107,26 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-http-server:latest
 
+  # 6. BUILD DOCKER FRONTEND (En parallèle de tout le reste !)
+  build-and-push-frontend:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend # Remplace par le chemin de ton dossier front
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/tp-devops-frontend:latest    
 
   deploy-ansible:
-    needs: [build-and-push-backend, build-and-push-database, build-and-push-http-server]
+    needs: [build-and-push-backend, build-and-push-database, build-and-push-http-server, build-and-push-frontend] # Attend que tous les builds soient terminés pour plus de sécurité
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 

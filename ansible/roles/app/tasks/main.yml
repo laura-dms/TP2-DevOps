@@ -21,5 +21,3 @@
       timeout: 5s
       retries: 10
       start_period: 30s # Laisse 30s à Spring Boot pour booter avant de checker
-  # vars:
-  #   ansible_python_interpreter: /opt/docker_venv/bin/python

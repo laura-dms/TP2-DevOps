@@ -1,13 +1,12 @@
 ---
 # tasks file for roles/proxy
-- name: Run Proxy
+- name: Run Frontend and Proxy
   docker_container:
     name: proxy-server
-    image: lauradmsefrei/tp-devops-http-server
+    # On utilise l'image du frontend, qui contient déjà la configuration pour faire du reverse proxy vers le backend
+    image: lauradmsefrei/tp-devops-frontend
     ports:
       - "80:80"
     networks:
       - name: app-network
     restart_policy: always
-  # vars:
-  #   ansible_python_interpreter: /opt/docker_venv/bin/python

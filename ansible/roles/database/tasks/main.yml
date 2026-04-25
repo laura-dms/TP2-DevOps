@@ -26,5 +26,3 @@
     # Attend que le statut devienne 'healthy'
     comparisons:
       healthcheck: strict
-  # vars:
-  #   ansible_python_interpreter: /opt/docker_venv/bin/python

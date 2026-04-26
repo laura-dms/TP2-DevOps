@@ -33,7 +33,34 @@ The backend waits until the database is marked as **healthy** before attempting 
 
 ---
 
-### 3. Reverse Proxy (Frontend)
+## 3. Sécurisation avec Ansible Vault
+
+Pour répondre aux exigences de sécurité *"Production-ready"*, les données sensibles sont protégées grâce à **Ansible Vault**.
+
+### 1. Coffre-fort de variables
+
+Les secrets (identifiants DockerHub, clés privées, etc.) ne sont plus stockés en clair dans le dépôt Git.
+Ils sont désormais **chiffrés avec l’algorithme AES256** dans le fichier :
+
+```
+ansible/credentials.yml
+```
+
+### 2. Utilisation en CI/CD
+
+Le pipeline GitHub Actions déchiffre dynamiquement le coffre-fort lors du déploiement :
+
+* Le mot de passe du Vault est récupéré depuis un **GitHub Secret** :
+  `ANSIBLE_VAULT_PASSWORD`
+* Un fichier temporaire `.vault_pass` est créé sur le runner
+* Ansible utilise ce fichier pour **déchiffrer et injecter les variables sécurisées** dans le playbook au moment du déploiement
+
+Cela garantit que **les informations sensibles ne sont jamais exposées**, ni dans le code source, ni dans les logs.
+
+
+---
+
+### 4. Reverse Proxy (Frontend)
 
 The Nginx server is configured via `default.conf` to handle routing:
 

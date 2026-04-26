@@ -1,41 +1,46 @@
-# DevOps Lab 2026 – Multi-tier Architecture & CI/CD
+# TPs DevOps 2026 – Architecture multi-niveaux et CI/CD
 
-This project implements a complete and automated infrastructure using Docker, Ansible, and GitHub Actions. The application is composed of a Vue.js/Nginx frontend, a Java Spring Boot REST API, and a PostgreSQL database.
-
----
-
-## 🏗 Project Architecture
-
-The architecture follows a **4-tier model**, where the HTTP server acts as a single entry point (**Reverse Proxy**).
-
-- **Frontend / Proxy (Nginx)**: Serves static frontend files and redirects `/api` requests to the backend.  
-- **Backend (Spring Boot)**: REST API handling business logic.  
-- **Database (PostgreSQL)**: Persistent data storage using a Docker volume.  
-- **Network (Docker Network)**: An internal network (`app-network`) ensures isolated communication between containers.
+Ce projet met en œuvre une infrastructure complète et automatisée utilisant Docker, Ansible et GitHub Actions. L'application est composée d'un frontend Vue.js/Nginx, d'une API REST Java Spring Boot et d'une base de données PostgreSQL.
 
 ---
 
-## 🚀 Key Features
+## 🏗 Architecture du projet
 
-### 1. Data Persistence
+L'architecture suit un **modèle à 4 niveaux**, où le serveur HTTP fait office de point d'entrée unique (**proxy inverse**).
 
-A named volume `pgdata` is used to ensure that database data is not lost when the container restarts.
+- **Frontend / Proxy (Nginx)** : Sert les fichiers statiques du frontend et redirige les requêtes `/api` vers le backend.
 
-**Fix applied:**  
-Added an Ansible `docker_volume` task to ensure the volume is created before starting the container.
+- **Backend (Spring Boot)** : API REST gérant la logique métier.
+
+- **Base de données (PostgreSQL)** : Stockage persistant des données à l'aide d'un volume Docker.
+
+- **Réseau (Docker Network)** : Un réseau interne (`app-network`) assure une communication isolée entre les conteneurs.
 
 ---
 
-### 2. Availability (Healthchecks)
+## 🚀 Fonctionnalités clés
 
-The database container includes a healthcheck (`pg_isready`).  
-The backend waits until the database is marked as **healthy** before attempting to connect, preventing startup connection errors.
+### 1. Persistance des données
+
+Un volume nommé `pgdata` est utilisé pour garantir la conservation des données de la base de données lors du redémarrage du conteneur.
+
+**Correction appliquée :**
+
+Ajout d'une tâche Ansible `docker_volume` pour garantir la création du volume avant le démarrage du conteneur.
+
+---
+
+### 2. Disponibilité (Contrôles d'intégrité)
+
+Le conteneur de base de données intègre un contrôle d'intégrité (`pg_isready`).
+
+Le serveur attend que la base de données soit marquée comme **saine** avant de tenter de s'y connecter, évitant ainsi les erreurs de connexion au démarrage.
 
 ---
 
 ## 3. Sécurisation avec Ansible Vault
 
-Pour répondre aux exigences de sécurité *"Production-ready"*, les données sensibles sont protégées grâce à **Ansible Vault**.
+Pour répondre aux exigences de sécurité « prêt pour la production », les données sensibles sont protégées grâce à **Ansible Vault**.
 
 ### 1. Coffre-fort de variables
 
@@ -50,9 +55,9 @@ ansible/credentials.yml
 
 Le pipeline GitHub Actions déchiffre dynamiquement le coffre-fort lors du déploiement :
 
-* Le mot de passe du Vault est récupéré depuis un **GitHub Secret** :
-  `ANSIBLE_VAULT_PASSWORD`
-* Un fichier temporaire `.vault_pass` est créé sur le runner
+* Le mot de passe du Vault est récupéré depuis un **GitHub Secret** : 
+`ANSIBLE_VAULT_PASSWORD`
+* Un fichier temporaire `.vault_pass` est créé sur le coureur
 * Ansible utilise ce fichier pour **déchiffrer et injecter les variables sécurisées** dans le playbook au moment du déploiement
 
 Cela garantit que **les informations sensibles ne sont jamais exposées**, ni dans le code source, ni dans les logs.
@@ -60,56 +65,66 @@ Cela garantit que **les informations sensibles ne sont jamais exposées**, ni da
 
 ---
 
-### 4. Reverse Proxy (Frontend)
+### 4. Proxy inverse (Frontend)
 
-The Nginx server is configured via `default.conf` to handle routing:
+Le serveur Nginx est configuré via `default.conf` pour gérer le routage :
 
-- `location /` → Serves the web interface  
-- `location /api/` → Proxies requests to `http://student-api:8080/`
+- `location /` → Serve l'interface web
 
----
-
-## 🤖 CI/CD Pipeline (GitHub Actions)
-
-The workflow `.github/workflows/main.yml` automates the entire lifecycle:
-
-- **Tests**: Run Maven unit tests  
-- **Analysis**: Code quality analysis using SonarCloud  
-- **Build & Push**: Build Docker images for all 4 services and push them to DockerHub  
-- **Deploy**: Automatic deployment via Ansible on a remote instance  
-
-**Manual deployment note:**  
-The deployment job can be triggered manually using the **Run workflow** button thanks to the `workflow_dispatch` event.
+- `location /api/` → Transfère les requêtes vers `http://student-api:8080/`
 
 ---
 
-## 🛠 Installation and Deployment
+## 🤖 Pipeline CI/CD (GitHub Actions)
 
-### Prerequisites
+Le workflow `.github/workflows/main.yml` automatise l'intégralité du cycle de vie :
 
-- A Linux instance (Takima) accessible via SSH  
-- Docker and Ansible installed on the deployment machine  
-- GitHub secrets configured:
-  - `DOCKER_HUB_TOKEN` : token docker hub
-  - `DOCKER_HUB_USERNAME`: username docker hub
-  - `SSH_PRIVATE_KEY` : private key to connect to takima's instance
-  - `SERVER_HOST` : nom du serveur takima
-  - `SONAR_TOKEN`: token de Sonar Cloud
-  - `ANSIBLE_INVENTORY`
+- **Tests** : Exécution des tests unitaires Maven
+
+- **Analyse** : Analyse de la qualité du code avec SonarCloud
+
+- **Build & Push** : Création des images Docker pour les 4 services et leur envoi sur Docker Hub
+
+- **Deployment** : Déploiement automatique via Ansible sur une instance distante
+
+**Remarque concernant le déploiement manuel :**
+
+Le déploiement peut être déclenché manuellement à l'aide du bouton **Exécuter le workflow**. Événement `workflow_dispatch`.
 
 ---
 
-### Deployment via Ansible (Local)
+## 🛠 Installation et déploiement
 
-To deploy manually from WSL:
+### Prérequis
+
+- Une instance Linux (Takima) accessible via SSH
+- Docker et Ansible installés sur la machine de déploiement
+- Clés secrètes GitHub configurées :
+
+- `DOCKER_HUB_TOKEN` : jeton Docker Hub
+
+- `DOCKER_HUB_USERNAME` : nom d'utilisateur Docker Hub
+
+- `SSH_PRIVATE_KEY` : clé privée pour se connecter à l'instance Takima
+
+- `SERVER_HOST` : nom du serveur Takima
+
+- `SONAR_TOKEN` : jeton Sonar Cloud
+
+- `ANSIBLE_INVENTORY`
+
+---
+### Déploiement via Ansible (local)
+
+Pour un déploiement manuel depuis WSL :
 
 ```bash
 ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml --private-key ./id_rsa
 ```
 
-### Author 👩‍💻
+### Auteur 👩‍💻
 
 - Laura-DAMAS
-- Group : ING2-APP-BDML1
-- DevOps Lab Project – Mars-Avril 2026
-- Course: DevOps
+- Groupe : ING2-APP-BDML1
+- Projet de laboratoire DevOps – Mars-Avril 2026
+- Cours : DevOps
